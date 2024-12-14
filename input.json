@@ -1,0 +1,6 @@
+{
+    "name": "name",
+    "born_at": "date",
+    "address": "address",
+    "phone": "phone"
+}
