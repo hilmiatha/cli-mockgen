@@ -2,5 +2,6 @@
     "name": "name",
     "born_at": "date",
     "address": "address",
-    "phone": "phone"
+    "phone": "phone",
+    "parent_name": "name"
 }

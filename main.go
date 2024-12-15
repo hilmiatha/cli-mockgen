@@ -9,13 +9,9 @@ import (
 	"io"
 	"os"
 	"strings"
+	"github.com/hilmiatha/cli-mockgen/data"
 )
-var SUPPORTED_MOCK_DATA = map[string]bool{
-	"name": true,
-	"address": true,
-	"phone": true,
-	"date": true,
-}
+
 func main () {
 	// Define the command line flags
 	var help bool
@@ -59,14 +55,17 @@ func main () {
 		os.Exit(0)
 	}
 
-	for k,v := range mapping {
-		fmt.Printf("Key: %s, Value: %s\n", k, v)
+	mappingRes, err := generateMockData(mapping)
+	if  err != nil {
+		fmt.Printf("Error generating mock data: %s\n", err)
+		os.Exit(0)
 	}
 
-
-
-
 	
+	if err := writeOutput(outputPath, mappingRes); err != nil {
+		fmt.Printf("Error writing output file: %s\n", err)
+		os.Exit(0)
+	}
 
 }
 
@@ -138,9 +137,54 @@ func readInput(inputPath string, mapping *map[string]string) error {
 
 func validateMapping(mapping *map[string]string) error {
 	for _,v := range *mapping {
-		if !SUPPORTED_MOCK_DATA[v] {
+		if !data.SUPPORTED_MOCK_DATA[v] {
 			return fmt.Errorf("unsupported mock data type : %s", v)
 		}
 	}
+	return nil
+}
+
+
+func generateMockData(mapping map[string]string) (map[string]any, error) {
+	res := make(map[string]any)
+	for k,v := range mapping {
+		switch v {
+		case "name":
+			res[k] = data.Generate(v)
+		case "address":
+			res[k] = data.Generate(v)
+		case "phone":
+			res[k] = data.Generate(v)
+		case "date":
+			res[k] = data.Generate(v)
+		}
+	}
+
+	return res, nil
+}
+
+func writeOutput(outputPath string, mapping map[string]any) error {
+	if outputPath == "" {
+		return errors.New("output file path is not valid")
+	}
+
+	flags := os.O_RDWR | os.O_CREATE | os.O_TRUNC
+	file, err := os.OpenFile(outputPath, flags, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	resultByte, err := json.MarshalIndent(mapping, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_, err2 := file.Write(resultByte)
+	if err2 != nil {
+		return err2
+	}
+
+	fmt.Println("Mock data generated successfully")
 	return nil
 }
