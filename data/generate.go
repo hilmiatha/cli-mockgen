@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"golang.org/x/exp/rand"
+	"math/rand"
 )
 
 func Generate(dataType string) any {
